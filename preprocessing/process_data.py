@@ -1,10 +1,12 @@
 import argparse
 import csv
+import os
 import time
 from collections import defaultdict
 
-ATHLETES_FILENAME = 'athlete_events.csv'
-NOC_FILENAME = 'noc_regions.csv'
+ATHLETES_FILENAME = os.path.join('data', 'athlete_events.csv')
+NOC_FILENAME = os.path.join('data', 'noc_regions.csv')
+OUTPUT_PATH = os.path.join(os.pardir, 'java_app', 'input', 'athlete_events_cleaned.csv')
 HELP_TEXT = '''
 Options about the script, the view option parses the file and does a report about the NULL values,
 while clean parses the data and replaces the team names with their respective region they belong too.
@@ -20,6 +22,7 @@ def _parse_user_args():
     arg_parser.add_argument('-a', '--athletes', help="filename containing the atheltes data", default=ATHLETES_FILENAME)
     arg_parser.add_argument('-n', '--noc', help="filename containing NOC regional data", default=NOC_FILENAME)
     arg_parser.add_argument('-o', '--options', help=HELP_TEXT, default="view", choices=["view", "clean"])
+    arg_parser.add_argument('-out', '--output', help="output path", default=OUTPUT_PATH)
     return arg_parser.parse_args()
 
 
@@ -79,13 +82,12 @@ class FileParser:
                 if notes := row.get('notes'):
                     self._notes_mapping[notes] = noc
 
-    def parse_csv_and_clean_data(self):
+    def parse_csv_and_clean_data(self, output_path):
         """
         Parses the csv file, calculates the missing values in
         the dataset while creating a new clean csv file
         """
-        new_filepath = f'new_{self._filepath}'
-        with open(self._filepath) as f, open(new_filepath, 'w') as n:
+        with open(self._filepath) as f, open(output_path, 'w') as n:
             reader = csv.DictReader(f, delimiter=',')
             writer = csv.DictWriter(n, delimiter=',', fieldnames=reader.fieldnames)
             writer.writeheader()
@@ -128,7 +130,7 @@ def main():
         parser.parse_csv()
         parser.export_null_stats()
     else:
-        parser.parse_csv_and_clean_data()
+        parser.parse_csv_and_clean_data(args.output)
     parser.export_unique_teams_countries()
 
 
