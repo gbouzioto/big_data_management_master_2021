@@ -57,7 +57,6 @@ class FileParser:
         self._unique_countries = set()
         self._noc_mapping = {}
         self._notes_mapping = {}
-        self.foo = defaultdict(set)
 
     def parse_csv(self):
         """Parses the csv file and gathers useful info"""
@@ -99,7 +98,6 @@ class FileParser:
                 self._unique_teams.add(region)
                 self._unique_countries.add(noc)
                 row['Team'] = region
-                self.foo[region].add(noc)
                 writer.writerow(row)
 
     def export_null_stats(self):
