@@ -8,6 +8,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -18,47 +19,45 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 public class AthletePerformance {
 
     public static class GoldMedalMapper
-            extends Mapper<Object, Text, Text, IntWritable>{
+            extends Mapper<LongWritable, Text, Text, IntWritable>{
 
-        private final static IntWritable one = new IntWritable(1);
-        private final Text athleteMeta = new Text();
-        private final Text medal = new Text();
-        private final static Text gold = new Text("Gold");
+        private final static Text GOLD = new Text("Gold");
+        private final static IntWritable ONE = new IntWritable(1);
 
-        public void map(Object key, Text value, Context context
+        public void map(LongWritable key, Text value, Context context
         ) throws IOException, InterruptedException {
+            // skip header
+            if (key.get() == 0) {
+                return;
+            }
+
             String line = value.toString();
 
             try (CSVReader csvReader = new CSVReader(new StringReader(line))) {
-                String[] ParsedLine = csvReader.readNext();
-                String meta = String.format("%s %s %s",
-                        ParsedLine[Constants.ID],
-                        ParsedLine[Constants.NAME],
-                        ParsedLine[Constants.SEX]);
-                medal.set(ParsedLine[Constants.MEDAL]);
-                athleteMeta.set(meta);
+                String[] parsedLine = csvReader.readNext();
+                Athlete athlete = new Athlete(parsedLine);
+                if (athlete.getMedal().equals(GOLD)) {
+                    Text outKey = new Text(
+                            String.format("%s %s %s", athlete.getId(), athlete.getName(), athlete.getSex()));
+                    context.write(outKey, ONE);
+                }
             } catch (CsvValidationException e) {
                 e.printStackTrace();
-            }
-            if (medal.equals(gold)) {
-                context.write(athleteMeta, one);
             }
         }
     }
 
     public static class GoldMedalReducer
-            extends Reducer<Text,IntWritable,Text,IntWritable> {
-        private final IntWritable result = new IntWritable();
+            extends Reducer<Text, IntWritable, Text, IntWritable> {
 
         public void reduce(Text key, Iterable<IntWritable> values,
                            Context context
         ) throws IOException, InterruptedException {
             int sum = 0;
-            for (IntWritable val : values) {
-                sum += val.get();
+            for (IntWritable value : values) {
+                sum += value.get();
             }
-            result.set(sum);
-            context.write(key, result);
+            context.write(key, new IntWritable(sum));
         }
     }
 
