@@ -2,13 +2,16 @@ package project;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+
+import static java.lang.Integer.parseInt;
 
 @Data
 @Accessors(chain = true)
 public class Athlete {
 
-    private Text id;
+    private IntWritable id;
     private Text name;
     private Text sex;
     private Text age;
@@ -25,7 +28,7 @@ public class Athlete {
     private Text medal;
 
     public Athlete(String[] line) {
-        this.id = new Text(line[Constants.ID]);
+        this.id = new IntWritable(parseInt(line[Constants.ID]));
         this.name = new Text(line[Constants.NAME]);
         this.sex = new Text(line[Constants.SEX]);
         this.age = new Text(line[Constants.AGE]);
