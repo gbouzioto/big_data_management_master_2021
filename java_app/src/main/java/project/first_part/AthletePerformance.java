@@ -6,6 +6,7 @@ import java.io.StringReader;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
@@ -15,13 +16,14 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import project.Athlete;
 
+import static project.Constants.GOLD;
+
 
 public class AthletePerformance {
 
     public static class GoldMedalMapper
             extends Mapper<LongWritable, Text, AthletePerformanceKeyWritable, IntWritable>{
 
-        private final static Text GOLD = new Text("Gold");
         private final static IntWritable ONE = new IntWritable(1);
 
         public void map(LongWritable key, Text value, Context context
@@ -80,6 +82,10 @@ public class AthletePerformance {
         job.setOutputKeyClass(AthletePerformanceKeyWritable.class);
         job.setOutputValueClass(IntWritable.class);
         job.setSortComparatorClass(AthletePerformanceComparator.class);
+        FileSystem fs = FileSystem.get(conf);
+        if(fs.exists(new Path(args[1]))) {
+            fs.delete(new Path(args[1]),true);
+        }
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
         System.exit(job.waitForCompletion(true) ? 0 : 1);

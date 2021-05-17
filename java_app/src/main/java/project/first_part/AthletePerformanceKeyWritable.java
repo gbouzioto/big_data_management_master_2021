@@ -17,9 +17,9 @@ public class AthletePerformanceKeyWritable implements WritableComparable<Athlete
     private IntWritable id;
     //default constructor for (de)serialization
     public AthletePerformanceKeyWritable() {
-        id = new IntWritable();
-        name = new Text();
-        sex = new Text();
+        this.id = new IntWritable();
+        this.name = new Text();
+        this.sex = new Text();
     }
     public AthletePerformanceKeyWritable(Athlete athlete) {
         this.id = athlete.getId();
@@ -27,14 +27,14 @@ public class AthletePerformanceKeyWritable implements WritableComparable<Athlete
         this.sex = athlete.getSex();
     }
     public void write(DataOutput dataOutput) throws IOException {
-        id.write(dataOutput);
-        name.write(dataOutput);
-        sex.write(dataOutput);
+        this.id.write(dataOutput);
+        this.name.write(dataOutput);
+        this.sex.write(dataOutput);
     }
     public void readFields(DataInput dataInput) throws IOException {
-        id.readFields(dataInput);
-        name.readFields(dataInput);
-        sex.readFields(dataInput);
+        this.id.readFields(dataInput);
+        this.name.readFields(dataInput);
+        this.sex.readFields(dataInput);
     }
 
     public int compareTo(AthletePerformanceKeyWritable o) {
@@ -46,15 +46,18 @@ public class AthletePerformanceKeyWritable implements WritableComparable<Athlete
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AthletePerformanceKeyWritable that = (AthletePerformanceKeyWritable) o;
-        return Objects.equals(id, that.id);
+        return Objects.equals(this.id, that.id);
     }
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, sex);
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
+        return result;
     }
 
     @Override
     public String toString() {
-        return String.format("%s %s %s", id, name, sex);
+        return String.format("%s %s %s", this.id, this.name, this.sex);
     }
 }

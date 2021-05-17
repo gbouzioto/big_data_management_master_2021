@@ -106,6 +106,7 @@ class FileParser:
             percentage = round((count / self._row_count) * 100, 2)
             output = f'Column: {column_name} has {percentage}% missing values'
             print(output)
+        print(f"Total number of rows: {self._row_count}")
 
     def export_unique_teams_countries(self):
         """Outputs the unique teams and countries"""

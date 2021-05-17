@@ -1,5 +1,7 @@
 package project;
 
+import org.apache.hadoop.io.Text;
+
 public final class Constants {
 
     private Constants() {
@@ -21,4 +23,7 @@ public final class Constants {
     public static final int SPORT = 12;
     public static final int EVENT = 13;
     public static final int MEDAL = 14;
+    public final static Text GOLD = new Text("Gold");
+    public final static Text SILVER = new Text("Silver");
+    public final static Text BRONZE = new Text("Bronze");
 }
