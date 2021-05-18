@@ -2,16 +2,19 @@ package project.second_part;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
+import lombok.Builder;
+import lombok.Data;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
@@ -19,7 +22,8 @@ import project.Athlete;
 
 import static project.Constants.*;
 
-
+@Builder
+@Data
 public class TopAthletes {
 
     public static class MedalMapper
@@ -54,11 +58,16 @@ public class TopAthletes {
     }
 
     public static class MedalReducer
-            extends Reducer<TopAthletesKeyWritable, Text, TopAthletesKeyWritable, IntWritable> {
+            extends Reducer<TopAthletesKeyWritable, Text, IntWritable, TopAthletesKeyWritable> {
 
-        public void reduce(TopAthletesKeyWritable key, Iterable<Text> values,
-                           Context context
-        ) throws IOException, InterruptedException {
+        private TreeMap<AthleteKey, TopAthlete> tmap2;
+
+        @Override
+        public void setup(Context context) {
+            this.tmap2 = new TreeMap<>(new TopAthleteKeyComparator());
+        }
+
+        public void reduce(TopAthletesKeyWritable key, Iterable<Text> values, Context context) {
             int gold = 0, silver = 0, bronze = 0;
             for (Text value : values) {
                 if (value.equals(GOLD)) {
@@ -73,62 +82,65 @@ public class TopAthletes {
             key.setSilver(silver);
             key.setBronze(bronze);
             key.setTotalMedals();
-            context.write(key, new IntWritable(1));
-        }
-    }
 
-    public static class TopAthletesComparator extends WritableComparator {
+            AthleteKey athleteKey = new AthleteKey(key);
+            TopAthlete topAthlete = new TopAthlete(key);
 
-        protected TopAthletesComparator() {
-            super(TopAthletesKeyWritable.class, true);
+            tmap2.put(athleteKey, topAthlete);
+
+            if (this.tmap2.size() > 30)
+            {
+                this.tmap2.remove(this.tmap2.firstKey());
+            }
         }
 
         @Override
-        public int compare(WritableComparable w1, WritableComparable w2) {
-            TopAthletesKeyWritable at1 = (TopAthletesKeyWritable) w1;
-            TopAthletesKeyWritable at2 = (TopAthletesKeyWritable) w2;
+        public void cleanup(Context context) throws IOException,
+                InterruptedException
+        {
 
-            int result = -1* at1.getGold().compareTo(at2.getGold());
-            if (result == 0) {
-                result = -1* at1.getTotalMedals().compareTo(at2.getTotalMedals());
+            // write top athlete of all times
+            AthleteKey bestAthleteKey = this.tmap2.lastKey();
+            TopAthlete bestTopAthlete = this.tmap2.get(bestAthleteKey);
+            context.write(new IntWritable(1), bestTopAthlete.toTopAthletesKeyWritable());
+
+            int count = 1;
+            // iterate from the second athlete onward
+            for (Map.Entry<AthleteKey, TopAthlete> entry : this.tmap2.descendingMap().subMap(bestAthleteKey,
+                    false, this.tmap2.descendingMap().lastKey(), true).entrySet())
+            {
+                // previous
+                Map.Entry<AthleteKey, TopAthlete> prev = tmap2.descendingMap().lowerEntry(entry.getKey());
+                AthleteKey prevAthleteKey = prev.getKey();
+                // current
+                AthleteKey AthleteKey = entry.getKey();
+                TopAthlete topAthlete = entry.getValue();
+
+                if (!AthleteKey.equals(prevAthleteKey)) {
+                    count ++;
+                }
+                context.write(new IntWritable(count), topAthlete.toTopAthletesKeyWritable());
+                if (count == 10) {
+                    //check next athlete before exiting
+                    Map.Entry<AthleteKey, TopAthlete> next = tmap2.descendingMap().higherEntry(entry.getKey());  // next
+                    if (next == null) {
+                        break;
+                    }
+                    AthleteKey nextAthleteKey = next.getKey();
+
+                    if (!AthleteKey.equals(nextAthleteKey)) {
+                        count ++;
+                    }
+                }
+                if (count > 10) {
+                    break;
+                }
             }
-            if (result == 0) {
-                return at1.getName().compareTo(at2.getName());
-            }
-            return result;
+
         }
     }
 
-    public static class TopAthletesGroupingComparator extends WritableComparator {
 
-        protected TopAthletesGroupingComparator() {
-            super(TopAthletesKeyWritable.class, true);
-        }
-
-        @Override
-        public int compare(WritableComparable w1, WritableComparable w2) {
-            TopAthletesKeyWritable at1 = (TopAthletesKeyWritable) w1;
-            TopAthletesKeyWritable at2 = (TopAthletesKeyWritable) w2;
-            int result = at1.getId().compareTo(at2.getId());
-            if (result == 0) {
-                result = at1.getGames().compareTo(at2.getGames());
-            }
-            if (at1.getName().compareTo(new Text("Michael Fred Phelps, II")) == 0) {
-                int foo =1;
-            }
-            return result;
-        }
-    }
-
-    public static class TopAthletesKeyPartitioner extends Partitioner<TopAthletesKeyWritable, Text> {
-
-        @Override
-        public int getPartition(TopAthletesKeyWritable key, Text val, int numPartitions) {
-            int hash = key.hashCode();
-            return hash % numPartitions;
-        }
-
-    }
 
 
     public static void main(String[] args) throws Exception {
@@ -136,18 +148,15 @@ public class TopAthletes {
         Job job = Job.getInstance(conf, "athlete performance");
         job.setJarByClass(TopAthletes.class);
 
-        job.setGroupingComparatorClass(TopAthletesGroupingComparator.class);
-        job.setSortComparatorClass(TopAthletesComparator.class);
-        job.setPartitionerClass(TopAthletesKeyPartitioner.class);
-
         job.setMapperClass(MedalMapper.class);
         job.setReducerClass(MedalReducer.class);
+        job.setNumReduceTasks(1);
 
         job.setMapOutputKeyClass(TopAthletesKeyWritable.class);
         job.setMapOutputValueClass(Text.class);
 
-        job.setOutputKeyClass(TopAthletesKeyWritable.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputKeyClass(IntWritable.class);
+        job.setOutputValueClass(TopAthletesKeyWritable.class);
 
         FileSystem fs = FileSystem.get(conf);
         if(fs.exists(new Path(args[1]))) {

@@ -41,6 +41,21 @@ public class TopAthletesKeyWritable implements WritableComparable<TopAthletesKey
         this.bronze = new IntWritable();
         this.totalMedals = new IntWritable();
     }
+
+    public TopAthletesKeyWritable(TopAthlete topAthlete) {
+        this.id = new IntWritable(topAthlete.getId());
+        this.name = new Text(topAthlete.getName());
+        this.sex = new Text(topAthlete.getSex());
+        this.age = new Text(topAthlete.getAge());
+        this.team = new Text(topAthlete.getTeam());
+        this.sport = new Text(topAthlete.getSport());
+        this.games = new Text(topAthlete.getGames());
+        this.gold = new IntWritable(topAthlete.getGold());
+        this.silver = new IntWritable(topAthlete.getSilver());
+        this.bronze = new IntWritable(topAthlete.getBronze());
+        this.totalMedals = new IntWritable(topAthlete.getTotalMedals());
+    }
+    
     public void write(DataOutput dataOutput) throws IOException {
         this.id.write(dataOutput);
         this.name.write(dataOutput);
@@ -69,7 +84,11 @@ public class TopAthletesKeyWritable implements WritableComparable<TopAthletesKey
     }
 
     public int compareTo(TopAthletesKeyWritable o) {
-        return this.id.compareTo(o.getId());
+        int result = this.getId().compareTo(o.getId());
+        if (result == 0) {
+            result = this.getGames().compareTo(o.getGames());
+        }
+        return result;
     }
 
     public void setGold(int value) {
@@ -94,8 +113,9 @@ public class TopAthletesKeyWritable implements WritableComparable<TopAthletesKey
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TopAthletesKeyWritable that = (TopAthletesKeyWritable) o;
-        return that.getId().equals(this.id);
+        return that.getId().equals(this.id) && that.getGames().equals(this.games);
     }
+
     @Override
     public int hashCode() {
         final int prime = 31;
