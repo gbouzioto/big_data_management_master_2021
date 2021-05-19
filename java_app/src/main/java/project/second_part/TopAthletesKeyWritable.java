@@ -118,10 +118,8 @@ public class TopAthletesKeyWritable implements WritableComparable<TopAthletesKey
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
-        result = prime * result + ((this.games == null) ? 0 : this.games.hashCode());
+        int result = ((this.id == null) ? 0 : this.id.hashCode());
+        result += ((this.games == null) ? 0 : this.games.hashCode());
         return result;
     }
 

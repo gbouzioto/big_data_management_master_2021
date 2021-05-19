@@ -26,4 +26,5 @@ public final class Constants {
     public final static Text GOLD = new Text("Gold");
     public final static Text SILVER = new Text("Silver");
     public final static Text BRONZE = new Text("Bronze");
+    public static final int MAX_TOP_ATHLETES = 10;
 }

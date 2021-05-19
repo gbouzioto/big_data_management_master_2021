@@ -2,8 +2,7 @@ package project.second_part;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
@@ -60,11 +59,11 @@ public class TopAthletes {
     public static class MedalReducer
             extends Reducer<TopAthletesKeyWritable, Text, IntWritable, TopAthletesKeyWritable> {
 
-        private TreeMap<AthleteKey, TopAthlete> tmap2;
+        private TreeMap<AthleteKey, List<TopAthlete>> tMap;
 
         @Override
         public void setup(Context context) {
-            this.tmap2 = new TreeMap<>(new TopAthleteKeyComparator());
+            this.tMap = new TreeMap<>(new TopAthleteKeyComparator());
         }
 
         public void reduce(TopAthletesKeyWritable key, Iterable<Text> values, Context context) {
@@ -86,11 +85,18 @@ public class TopAthletes {
             AthleteKey athleteKey = new AthleteKey(key);
             TopAthlete topAthlete = new TopAthlete(key);
 
-            tmap2.put(athleteKey, topAthlete);
+            List<TopAthlete> topAthleteList;
+            if (this.tMap.containsKey(athleteKey)) {
+                topAthleteList = this.tMap.get(athleteKey);
+            } else {
+                topAthleteList = new ArrayList<>();
+            }
+            topAthleteList.add(topAthlete);
+            tMap.put(athleteKey, topAthleteList);
 
-            if (this.tmap2.size() > 30)
+            if (this.tMap.size() > MAX_TOP_ATHLETES)
             {
-                this.tmap2.remove(this.tmap2.firstKey());
+                this.tMap.remove(this.tMap.firstKey());
             }
         }
 
@@ -98,43 +104,18 @@ public class TopAthletes {
         public void cleanup(Context context) throws IOException,
                 InterruptedException
         {
-
-            // write top athlete of all times
-            AthleteKey bestAthleteKey = this.tmap2.lastKey();
-            TopAthlete bestTopAthlete = this.tmap2.get(bestAthleteKey);
-            context.write(new IntWritable(1), bestTopAthlete.toTopAthletesKeyWritable());
-
             int count = 1;
             // iterate from the second athlete onward
-            for (Map.Entry<AthleteKey, TopAthlete> entry : this.tmap2.descendingMap().subMap(bestAthleteKey,
-                    false, this.tmap2.descendingMap().lastKey(), true).entrySet())
+            for (Map.Entry<AthleteKey, List<TopAthlete>> entry : this.tMap.descendingMap().entrySet())
             {
-                // previous
-                Map.Entry<AthleteKey, TopAthlete> prev = tmap2.descendingMap().lowerEntry(entry.getKey());
-                AthleteKey prevAthleteKey = prev.getKey();
-                // current
-                AthleteKey AthleteKey = entry.getKey();
-                TopAthlete topAthlete = entry.getValue();
-
-                if (!AthleteKey.equals(prevAthleteKey)) {
-                    count ++;
+                List<TopAthlete> topAthleteList = entry.getValue();
+                if (topAthleteList.size() > 1) {
+                    topAthleteList.sort(new TopAthleteNameComparator());
                 }
-                context.write(new IntWritable(count), topAthlete.toTopAthletesKeyWritable());
-                if (count == 10) {
-                    //check next athlete before exiting
-                    Map.Entry<AthleteKey, TopAthlete> next = tmap2.descendingMap().higherEntry(entry.getKey());  // next
-                    if (next == null) {
-                        break;
-                    }
-                    AthleteKey nextAthleteKey = next.getKey();
-
-                    if (!AthleteKey.equals(nextAthleteKey)) {
-                        count ++;
-                    }
+                for(TopAthlete topAthlete:topAthleteList) {
+                    context.write(new IntWritable(count), topAthlete.toTopAthletesKeyWritable());
                 }
-                if (count > 10) {
-                    break;
-                }
+                count ++;
             }
 
         }
@@ -150,7 +131,6 @@ public class TopAthletes {
 
         job.setMapperClass(MedalMapper.class);
         job.setReducerClass(MedalReducer.class);
-        job.setNumReduceTasks(1);
 
         job.setMapOutputKeyClass(TopAthletesKeyWritable.class);
         job.setMapOutputValueClass(Text.class);

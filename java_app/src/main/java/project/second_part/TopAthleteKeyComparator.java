@@ -9,9 +9,6 @@ public class TopAthleteKeyComparator implements Comparator<AthleteKey> {
         if (result == 0) {
             result = at1.getTotalMedals().compareTo(at2.getTotalMedals());
         }
-        if (result == 0) {
-            result = at1.getName().compareTo(at2.getName());
-        }
         return result;
     }
 }
