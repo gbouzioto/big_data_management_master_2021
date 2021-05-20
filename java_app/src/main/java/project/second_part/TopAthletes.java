@@ -26,7 +26,7 @@ import static project.Constants.*;
 public class TopAthletes {
 
     public static class MedalMapper
-            extends Mapper<LongWritable, Text, TopAthletesKeyWritable, Text>{
+            extends Mapper<LongWritable, Text, TopAthleteKeyWritable, Text>{
 
         public void map(LongWritable key, Text value, Context context
         ) throws IOException, InterruptedException {
@@ -41,13 +41,13 @@ public class TopAthletes {
                 String[] parsedLine = csvReader.readNext();
                 Athlete athlete = new Athlete(parsedLine);
                 if (athlete.getMedal().equals(GOLD)) {
-                    TopAthletesKeyWritable outKey = new TopAthletesKeyWritable(athlete);
+                    TopAthleteKeyWritable outKey = new TopAthleteKeyWritable(athlete);
                     context.write(outKey, GOLD);
                 } else if (athlete.getMedal().equals(SILVER)) {
-                    TopAthletesKeyWritable outKey = new TopAthletesKeyWritable(athlete);
+                    TopAthleteKeyWritable outKey = new TopAthleteKeyWritable(athlete);
                     context.write(outKey, SILVER);
                 } else if (athlete.getMedal().equals(BRONZE)) {
-                    TopAthletesKeyWritable outKey = new TopAthletesKeyWritable(athlete);
+                    TopAthleteKeyWritable outKey = new TopAthleteKeyWritable(athlete);
                     context.write(outKey, BRONZE);
                 }
             } catch (CsvValidationException e) {
@@ -57,7 +57,7 @@ public class TopAthletes {
     }
 
     public static class MedalReducer
-            extends Reducer<TopAthletesKeyWritable, Text, IntWritable, TopAthletesKeyWritable> {
+            extends Reducer<TopAthleteKeyWritable, Text, IntWritable, TopAthleteKeyWritable> {
 
         private TreeMap<AthleteKey, List<TopAthlete>> tMap;
 
@@ -66,7 +66,7 @@ public class TopAthletes {
             this.tMap = new TreeMap<>(new TopAthleteKeyComparator());
         }
 
-        public void reduce(TopAthletesKeyWritable key, Iterable<Text> values, Context context) {
+        public void reduce(TopAthleteKeyWritable key, Iterable<Text> values, Context context) {
             int gold = 0, silver = 0, bronze = 0;
             for (Text value : values) {
                 if (value.equals(GOLD)) {
@@ -105,7 +105,6 @@ public class TopAthletes {
                 InterruptedException
         {
             int count = 1;
-            // iterate from the second athlete onward
             for (Map.Entry<AthleteKey, List<TopAthlete>> entry : this.tMap.descendingMap().entrySet())
             {
                 List<TopAthlete> topAthleteList = entry.getValue();
@@ -132,11 +131,11 @@ public class TopAthletes {
         job.setMapperClass(MedalMapper.class);
         job.setReducerClass(MedalReducer.class);
 
-        job.setMapOutputKeyClass(TopAthletesKeyWritable.class);
+        job.setMapOutputKeyClass(TopAthleteKeyWritable.class);
         job.setMapOutputValueClass(Text.class);
 
         job.setOutputKeyClass(IntWritable.class);
-        job.setOutputValueClass(TopAthletesKeyWritable.class);
+        job.setOutputValueClass(TopAthleteKeyWritable.class);
 
         FileSystem fs = FileSystem.get(conf);
         if(fs.exists(new Path(args[1]))) {

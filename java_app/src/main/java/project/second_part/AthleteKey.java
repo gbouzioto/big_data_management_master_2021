@@ -10,7 +10,7 @@ public class AthleteKey {
     private Integer gold;
     private Integer totalMedals;
 
-    public AthleteKey (TopAthletesKeyWritable athletesKeyWritable) {
+    public AthleteKey (TopAthleteKeyWritable athletesKeyWritable) {
         this.name = athletesKeyWritable.getName().toString();
         this.gold = athletesKeyWritable.getGold().get();
         this.totalMedals = athletesKeyWritable.getTotalMedals().get();
@@ -21,6 +21,6 @@ public class AthleteKey {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AthleteKey that = (AthleteKey) o;
-        return that.getGold().equals(this.gold) && that.getTotalMedals().equals(this.totalMedals);
+        return that.gold.equals(this.gold) && that.totalMedals.equals(this.totalMedals);
     }
 }

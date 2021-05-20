@@ -9,22 +9,22 @@ public class TopAthlete {
     private String name, sex, age, team, sport, games;
     private Integer id, gold, silver, bronze, totalMedals;
 
-    public TopAthlete (TopAthletesKeyWritable topAthletesKeyWritable) {
-        this.name = topAthletesKeyWritable.getName().toString();
-        this.sex = topAthletesKeyWritable.getSex().toString();
-        this.age = topAthletesKeyWritable.getAge().toString();
-        this.team = topAthletesKeyWritable.getTeam().toString();
-        this.sport = topAthletesKeyWritable.getSport().toString();
-        this.games = topAthletesKeyWritable.getGames().toString();
-        this.id = topAthletesKeyWritable.getId().get();
-        this.gold = topAthletesKeyWritable.getGold().get();
-        this.silver = topAthletesKeyWritable.getSilver().get();
-        this.bronze = topAthletesKeyWritable.getBronze().get();
-        this.totalMedals = topAthletesKeyWritable.getTotalMedals().get();
+    public TopAthlete (TopAthleteKeyWritable topAthleteKeyWritable) {
+        this.name = topAthleteKeyWritable.getName().toString();
+        this.sex = topAthleteKeyWritable.getSex().toString();
+        this.age = topAthleteKeyWritable.getAge().toString();
+        this.team = topAthleteKeyWritable.getTeam().toString();
+        this.sport = topAthleteKeyWritable.getSport().toString();
+        this.games = topAthleteKeyWritable.getGames().toString();
+        this.id = topAthleteKeyWritable.getId().get();
+        this.gold = topAthleteKeyWritable.getGold().get();
+        this.silver = topAthleteKeyWritable.getSilver().get();
+        this.bronze = topAthleteKeyWritable.getBronze().get();
+        this.totalMedals = topAthleteKeyWritable.getTotalMedals().get();
 
     }
 
-    public TopAthletesKeyWritable toTopAthletesKeyWritable() {
-        return new TopAthletesKeyWritable(this);
+    public TopAthleteKeyWritable toTopAthletesKeyWritable() {
+        return new TopAthleteKeyWritable(this);
     }
 }

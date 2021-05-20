@@ -38,7 +38,7 @@ public class AthletePerformanceKeyWritable implements WritableComparable<Athlete
     }
 
     public int compareTo(AthletePerformanceKeyWritable o) {
-        return this.id.compareTo(o.getId());
+        return this.id.compareTo(o.id);
     }
 
     @Override

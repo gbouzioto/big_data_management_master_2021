@@ -11,11 +11,11 @@ import java.io.IOException;
 
 @Data
 @Accessors(chain = true)
-public class TopAthletesKeyWritable implements WritableComparable<TopAthletesKeyWritable> {
+public class TopAthleteKeyWritable implements WritableComparable<TopAthleteKeyWritable> {
     private Text name, sex, age, team, sport, games;
     private IntWritable id, gold, silver, bronze, totalMedals;
     //default constructor for (de)serialization
-    public TopAthletesKeyWritable() {
+    public TopAthleteKeyWritable() {
         this.id = new IntWritable();
         this.name = new Text();
         this.sex = new Text();
@@ -28,7 +28,7 @@ public class TopAthletesKeyWritable implements WritableComparable<TopAthletesKey
         this.bronze = new IntWritable();
         this.totalMedals = new IntWritable();
     }
-    public TopAthletesKeyWritable(Athlete athlete) {
+    public TopAthleteKeyWritable(Athlete athlete) {
         this.id = athlete.getId();
         this.name = athlete.getName();
         this.sex = athlete.getSex();
@@ -42,7 +42,7 @@ public class TopAthletesKeyWritable implements WritableComparable<TopAthletesKey
         this.totalMedals = new IntWritable();
     }
 
-    public TopAthletesKeyWritable(TopAthlete topAthlete) {
+    public TopAthleteKeyWritable(TopAthlete topAthlete) {
         this.id = new IntWritable(topAthlete.getId());
         this.name = new Text(topAthlete.getName());
         this.sex = new Text(topAthlete.getSex());
@@ -83,10 +83,10 @@ public class TopAthletesKeyWritable implements WritableComparable<TopAthletesKey
         this.totalMedals.readFields(dataInput);
     }
 
-    public int compareTo(TopAthletesKeyWritable o) {
-        int result = this.getId().compareTo(o.getId());
+    public int compareTo(TopAthleteKeyWritable o) {
+        int result = this.id.compareTo(o.id);
         if (result == 0) {
-            result = this.getGames().compareTo(o.getGames());
+            result = this.games.compareTo(o.games);
         }
         return result;
     }
@@ -112,8 +112,8 @@ public class TopAthletesKeyWritable implements WritableComparable<TopAthletesKey
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TopAthletesKeyWritable that = (TopAthletesKeyWritable) o;
-        return that.getId().equals(this.id) && that.getGames().equals(this.games);
+        TopAthleteKeyWritable that = (TopAthleteKeyWritable) o;
+        return that.id.equals(this.id) && that.games.equals(this.games);
     }
 
     @Override
