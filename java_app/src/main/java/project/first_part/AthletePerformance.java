@@ -1,10 +1,6 @@
 package project.first_part;
 
 import java.io.IOException;
-import java.io.StringReader;
-
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -17,6 +13,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import project.Athlete;
 
 import static project.Constants.GOLD;
+import static project.Constants.ONE;
 
 
 public class AthletePerformance {
@@ -24,26 +21,15 @@ public class AthletePerformance {
     public static class GoldMedalMapper
             extends Mapper<LongWritable, Text, AthletePerformanceKeyWritable, IntWritable>{
 
-        private final static IntWritable ONE = new IntWritable(1);
-
         public void map(LongWritable key, Text value, Context context
         ) throws IOException, InterruptedException {
-            // skip header
-            if (key.get() == 0) {
-                return;
-            }
-
             String line = value.toString();
+            String[] splitText = line.split("\t");
 
-            try (CSVReader csvReader = new CSVReader(new StringReader(line))) {
-                String[] parsedLine = csvReader.readNext();
-                Athlete athlete = new Athlete(parsedLine);
-                if (athlete.getMedal().equals(GOLD)) {
-                    AthletePerformanceKeyWritable outKey = new AthletePerformanceKeyWritable(athlete);
-                    context.write(outKey, ONE);
-                }
-            } catch (CsvValidationException e) {
-                e.printStackTrace();
+            Athlete athlete = new Athlete(splitText);
+            if (athlete.getMedal().equals(GOLD)) {
+                AthletePerformanceKeyWritable outKey = new AthletePerformanceKeyWritable(athlete);
+                context.write(outKey, ONE);
             }
         }
     }

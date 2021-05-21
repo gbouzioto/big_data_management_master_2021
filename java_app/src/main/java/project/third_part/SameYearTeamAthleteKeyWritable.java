@@ -13,10 +13,10 @@ import java.io.IOException;
 @Accessors(chain = true)
 public class SameYearTeamAthleteKeyWritable implements WritableComparable<SameYearTeamAthleteKeyWritable> {
     protected Text name, team, sport, games, noc;
-    protected IntWritable id;
+    protected LongWritable id;
     //default constructor for (de)serialization
     public SameYearTeamAthleteKeyWritable() {
-        this.id = new IntWritable();
+        this.id = new LongWritable();
         this.name = new Text();
         this.team = new Text();
         this.sport = new Text();

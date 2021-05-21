@@ -1,11 +1,8 @@
 package project.third_part;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
 
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.hadoop.conf.Configuration;
@@ -18,6 +15,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import project.Athlete;
+
 import static project.Constants.*;
 
 @Builder
@@ -29,22 +27,13 @@ public class WomanAthleteParticipation {
 
         public void map(LongWritable key, Text value, Context context
         ) throws IOException, InterruptedException {
-            // skip header
-            if (key.get() == 0) {
-                return;
-            }
-
             String line = value.toString();
+            String[] splitText = line.split("\t");
 
-            try (CSVReader csvReader = new CSVReader(new StringReader(line))) {
-                String[] parsedLine = csvReader.readNext();
-                Athlete athlete = new Athlete(parsedLine);
-                if (athlete.getSex().compareTo(FEMALE) == 0) {
-                    SameYearTeamAthleteKeyWritable womanAthlete = new SameYearTeamAthleteKeyWritable(athlete);
-                    context.write(womanAthlete, womanAthlete);
-                }
-            } catch (CsvValidationException e) {
-                e.printStackTrace();
+            Athlete athlete = new Athlete(splitText);
+            if (athlete.getSex().compareTo(FEMALE) == 0) {
+                SameYearTeamAthleteKeyWritable womanAthlete = new SameYearTeamAthleteKeyWritable(athlete);
+                context.write(womanAthlete, womanAthlete);
             }
         }
     }
@@ -54,7 +43,7 @@ public class WomanAthleteParticipation {
 
         public void reduce(SameYearTeamAthleteKeyWritable key, Iterable<SameYearTeamAthleteKeyWritable> values, Context context
         ) throws IOException, InterruptedException {
-            HashSet<Integer> ids = new HashSet<>();
+            HashSet<Long> ids = new HashSet<>();
             HashMap<String, Integer> sportCountMap= new HashMap<>();
 
             TeamValueWritable teamValueWritable = new TeamValueWritable();
@@ -64,7 +53,7 @@ public class WomanAthleteParticipation {
             teamValueWritable.setTeam(key.getTeam());
 
             String sport;
-            int id;
+            long id;
 
             for (SameYearTeamAthleteKeyWritable value : values) {
                 id = value.getId().get();
@@ -177,6 +166,7 @@ public class WomanAthleteParticipation {
         job2.setJarByClass(WomanAthleteParticipation.class);
 
         job2.setMapperClass(TopYearTeamMapper.class);
+        job2.setCombinerClass(TopYearTeamReducer.class);
         job2.setReducerClass(TopYearTeamReducer.class);
 
         job2.setMapOutputKeyClass(Text.class);

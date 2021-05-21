@@ -1,11 +1,8 @@
 package project.second_part;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
 
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvValidationException;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.hadoop.conf.Configuration;
@@ -30,28 +27,19 @@ public class TopAthletes {
 
         public void map(LongWritable key, Text value, Context context
         ) throws IOException, InterruptedException {
-            // skip header
-            if (key.get() == 0) {
-                return;
-            }
-
             String line = value.toString();
+            String[] splitText = line.split("\t");
 
-            try (CSVReader csvReader = new CSVReader(new StringReader(line))) {
-                String[] parsedLine = csvReader.readNext();
-                Athlete athlete = new Athlete(parsedLine);
-                if (athlete.getMedal().equals(GOLD)) {
-                    TopAthleteKeyWritable outKey = new TopAthleteKeyWritable(athlete);
-                    context.write(outKey, GOLD);
-                } else if (athlete.getMedal().equals(SILVER)) {
-                    TopAthleteKeyWritable outKey = new TopAthleteKeyWritable(athlete);
-                    context.write(outKey, SILVER);
-                } else if (athlete.getMedal().equals(BRONZE)) {
-                    TopAthleteKeyWritable outKey = new TopAthleteKeyWritable(athlete);
-                    context.write(outKey, BRONZE);
-                }
-            } catch (CsvValidationException e) {
-                e.printStackTrace();
+            Athlete athlete = new Athlete(splitText);
+            if (athlete.getMedal().equals(GOLD)) {
+                TopAthleteKeyWritable outKey = new TopAthleteKeyWritable(athlete);
+                context.write(outKey, GOLD);
+            } else if (athlete.getMedal().equals(SILVER)) {
+                TopAthleteKeyWritable outKey = new TopAthleteKeyWritable(athlete);
+                context.write(outKey, SILVER);
+            } else if (athlete.getMedal().equals(BRONZE)) {
+                TopAthleteKeyWritable outKey = new TopAthleteKeyWritable(athlete);
+                context.write(outKey, BRONZE);
             }
         }
     }
@@ -119,9 +107,6 @@ public class TopAthletes {
 
         }
     }
-
-
-
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();

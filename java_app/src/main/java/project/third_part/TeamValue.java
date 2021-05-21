@@ -15,7 +15,7 @@ public class TeamValue {
     public TeamValue(TeamValueWritable teamValueWritable) {
         this.games = teamValueWritable.getGames().toString();
         this.team = teamValueWritable.getTeam().toString();
-        this.noc = teamValueWritable.getTeam().toString();
+        this.noc = teamValueWritable.getNoc().toString();
         this.womanAthletesCount = teamValueWritable.getWomanAthletesCount().get();
         this.sport = teamValueWritable.getSport().toString();
 

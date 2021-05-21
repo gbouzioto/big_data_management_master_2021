@@ -2,7 +2,7 @@ package project;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 
 import static java.lang.Integer.parseInt;
@@ -11,7 +11,7 @@ import static java.lang.Integer.parseInt;
 @Accessors(chain = true)
 public class Athlete {
 
-    private IntWritable id;
+    private LongWritable id;
     private Text name;
     private Text sex;
     private Text age;
@@ -28,7 +28,7 @@ public class Athlete {
     private Text medal;
 
     public Athlete(String[] line) {
-        this.id = new IntWritable(parseInt(line[Constants.ID]));
+        this.id = new LongWritable(parseInt(line[Constants.ID]));
         this.name = new Text(line[Constants.NAME]);
         this.sex = new Text(line[Constants.SEX]);
         this.age = new Text(line[Constants.AGE]);
@@ -43,5 +43,16 @@ public class Athlete {
         this.sport = new Text(line[Constants.SPORT]);
         this.event = new Text(line[Constants.EVENT]);
         this.medal = new Text(line[Constants.MEDAL]);
+    }
+
+    public String toString() {
+        return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", this.id.toString(), this.name.toString(),
+                this.sex.toString(), this.age.toString(), this.height.toString(), this.weight.toString(), this.team.toString(),
+                this.noc.toString(), this.games.toString(), this.year.toString(), this.season.toString(), this.city.toString(),
+                this.sport.toString(), this.event.toString(), this.medal.toString());
+    }
+
+    public Text toText() {
+        return new Text(this.toString());
     }
 }

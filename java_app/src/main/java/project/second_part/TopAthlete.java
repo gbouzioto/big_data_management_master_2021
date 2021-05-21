@@ -7,7 +7,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class TopAthlete {
     private String name, sex, age, team, sport, games;
-    private Integer id, gold, silver, bronze, totalMedals;
+    private Integer gold, silver, bronze, totalMedals;
+    private Long id;
 
     public TopAthlete (TopAthleteKeyWritable topAthleteKeyWritable) {
         this.name = topAthleteKeyWritable.getName().toString();

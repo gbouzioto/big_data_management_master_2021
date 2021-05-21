@@ -14,10 +14,10 @@ import java.util.Objects;
 @Accessors(chain = true)
 public class AthletePerformanceKeyWritable implements WritableComparable<AthletePerformanceKeyWritable> {
     private Text name, sex;
-    private IntWritable id;
+    private LongWritable id;
     //default constructor for (de)serialization
     public AthletePerformanceKeyWritable() {
-        this.id = new IntWritable();
+        this.id = new LongWritable();
         this.name = new Text();
         this.sex = new Text();
     }

@@ -13,10 +13,11 @@ import java.io.IOException;
 @Accessors(chain = true)
 public class TopAthleteKeyWritable implements WritableComparable<TopAthleteKeyWritable> {
     private Text name, sex, age, team, sport, games;
-    private IntWritable id, gold, silver, bronze, totalMedals;
+    private IntWritable gold, silver, bronze, totalMedals;
+    private LongWritable id;
     //default constructor for (de)serialization
     public TopAthleteKeyWritable() {
-        this.id = new IntWritable();
+        this.id = new LongWritable();
         this.name = new Text();
         this.sex = new Text();
         this.age = new Text();
@@ -43,7 +44,7 @@ public class TopAthleteKeyWritable implements WritableComparable<TopAthleteKeyWr
     }
 
     public TopAthleteKeyWritable(TopAthlete topAthlete) {
-        this.id = new IntWritable(topAthlete.getId());
+        this.id = new LongWritable(topAthlete.getId());
         this.name = new Text(topAthlete.getName());
         this.sex = new Text(topAthlete.getSex());
         this.age = new Text(topAthlete.getAge());
