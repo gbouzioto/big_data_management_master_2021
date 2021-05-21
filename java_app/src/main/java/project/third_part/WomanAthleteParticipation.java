@@ -62,8 +62,10 @@ public class WomanAthleteParticipation {
             teamValueWritable.setGames(key.getGames());
             teamValueWritable.setNoc(key.getNoc());
             teamValueWritable.setTeam(key.getTeam());
+
             String sport;
             int id;
+
             for (SameYearTeamAthleteKeyWritable value : values) {
                 id = value.getId().get();
                 if (ids.contains(id)) {
@@ -94,32 +96,34 @@ public class WomanAthleteParticipation {
     }
 
     public static class TopYearTeamMapper
-            extends Mapper<LongWritable, Text, LongWritable, TeamValueWritable> {
+            extends Mapper<LongWritable, Text, Text, TeamValueWritable> {
 
         public void map(LongWritable key, Text value, Context context
         ) throws IOException, InterruptedException {
             TeamValueWritable teamValueWritable = new TeamValueWritable(value);
-            context.write(key, teamValueWritable);
+            context.write(teamValueWritable.getGames(), teamValueWritable);
         }
     }
 
     public static class TopYearTeamReducer
-            extends Reducer<LongWritable, TeamValueWritable, Text, TeamValueWritable> {
+            extends Reducer<Text, TeamValueWritable, Text, TeamValueWritable> {
 
-        public void reduce(LongWritable key, Iterable<TeamValueWritable> values, Context context
+        public void reduce(Text key, Iterable<TeamValueWritable> values, Context context
         ) throws IOException, InterruptedException {
-            TreeMap<Integer, List<TeamValueWritable>> tMap = new TreeMap<>();
-            List<TeamValueWritable> teamValueWritableList;
+            TreeMap<Integer, List<TeamValue>> tMap = new TreeMap<>();
+            List<TeamValue> teamValueList;
 
             for (TeamValueWritable value : values) {
-                int count = value.getWomanAthletesCount().get();
+                TeamValue teamValue = new TeamValue(value);
+                int count = teamValue.getWomanAthletesCount();
+
                 if (tMap.containsKey(count)) {
-                    teamValueWritableList = tMap.get(count);
+                    teamValueList = tMap.get(count);
                 } else {
-                    teamValueWritableList = new ArrayList<>();
+                    teamValueList = new ArrayList<>();
                 }
-                teamValueWritableList.add(value);
-                tMap.put(count, teamValueWritableList);
+                teamValueList.add(teamValue);
+                tMap.put(count, teamValueList);
 
                 if (tMap.size() > MAX_TOP_TEAMS)
                 {
@@ -127,13 +131,14 @@ public class WomanAthleteParticipation {
                 }
             }
 
-            for (Map.Entry<Integer, List<TeamValueWritable>> entry : tMap.descendingMap().entrySet())
+            for (Map.Entry<Integer, List<TeamValue>> entry : tMap.descendingMap().entrySet())
             {
-                List<TeamValueWritable> teamValueWritableList1 = entry.getValue();
-                if (teamValueWritableList1.size() > 1) {
-                    teamValueWritableList1.sort(new WomanTeamComparator());
+                List<TeamValue> teamValueList1 = entry.getValue();
+                if (teamValueList1.size() > 1) {
+                    teamValueList1.sort(new WomanTeamComparator());
                 }
-                for(TeamValueWritable teamValueWritable:teamValueWritableList1) {
+                for(TeamValue teamValue:teamValueList1) {
+                    TeamValueWritable teamValueWritable = teamValue.toTeamValueWritable();
                     context.write(teamValueWritable.getGames(), teamValueWritable);
                 }
             }
@@ -174,7 +179,7 @@ public class WomanAthleteParticipation {
         job2.setMapperClass(TopYearTeamMapper.class);
         job2.setReducerClass(TopYearTeamReducer.class);
 
-        job2.setMapOutputKeyClass(LongWritable.class);
+        job2.setMapOutputKeyClass(Text.class);
         job2.setMapOutputValueClass(TeamValueWritable.class);
 
         job2.setOutputKeyClass(Text.class);
