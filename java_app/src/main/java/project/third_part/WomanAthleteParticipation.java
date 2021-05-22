@@ -71,10 +71,11 @@ public class WomanAthleteParticipation {
             }
             teamValueWritable.setWomanAthletesCount(new IntWritable(ids.size()));
             String favoriteSport = "";
-            int count = 0;
+            int max_count = 0;
             for (Map.Entry<String, Integer> entry : sportCountMap.entrySet()) {
-                if (entry.getValue() > count) {
+                if (entry.getValue() > max_count) {
                     favoriteSport = entry.getKey();
+                    max_count = entry.getValue();
                 }
             }
             teamValueWritable.setSport(new Text(favoriteSport));
