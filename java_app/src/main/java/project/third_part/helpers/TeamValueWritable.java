@@ -1,4 +1,4 @@
-package project.third_part;
+package project.third_part.helpers;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -58,9 +58,6 @@ public class TeamValueWritable implements WritableComparable<TeamValueWritable> 
         if (result == 0) {
             result = this.team.compareTo(o.team);
         }
-        if (result == 0) {
-            result = this.noc.compareTo(o.noc);
-        }
         return result;
     }
 
@@ -69,7 +66,7 @@ public class TeamValueWritable implements WritableComparable<TeamValueWritable> 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TeamValueWritable that = (TeamValueWritable) o;
-        return that.games.equals(this.games) && that.team.equals(this.team) && that.noc.equals(this.noc);
+        return that.games.equals(this.games) && that.team.equals(this.team);
     }
 
     @Override

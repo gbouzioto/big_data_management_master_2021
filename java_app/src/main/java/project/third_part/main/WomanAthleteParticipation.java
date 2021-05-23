@@ -1,4 +1,4 @@
-package project.third_part;
+package project.third_part.main;
 
 import java.io.IOException;
 import java.util.*;
@@ -14,9 +14,13 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import project.Athlete;
+import project.utils.Athlete;
+import project.third_part.helpers.SameYearTeamAthleteKeyWritable;
+import project.third_part.helpers.TeamValue;
+import project.third_part.helpers.TeamValueWritable;
+import project.third_part.helpers.WomanTeamComparator;
 
-import static project.Constants.*;
+import static project.utils.Constants.*;
 
 @Builder
 @Data

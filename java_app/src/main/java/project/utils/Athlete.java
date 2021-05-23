@@ -1,4 +1,4 @@
-package project;
+package project.utils;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -46,7 +46,7 @@ public class Athlete {
     }
 
     public String toString() {
-        return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", this.id.toString(), this.name.toString(),
+        return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s", this.name.toString(),
                 this.sex.toString(), this.age.toString(), this.height.toString(), this.weight.toString(), this.team.toString(),
                 this.noc.toString(), this.games.toString(), this.year.toString(), this.season.toString(), this.city.toString(),
                 this.sport.toString(), this.event.toString(), this.medal.toString());

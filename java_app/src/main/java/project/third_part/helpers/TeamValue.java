@@ -1,4 +1,4 @@
-package project.third_part;
+package project.third_part.helpers;
 
 import lombok.Data;
 import lombok.experimental.Accessors;

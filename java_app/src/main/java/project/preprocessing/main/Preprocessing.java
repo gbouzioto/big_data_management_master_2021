@@ -1,4 +1,4 @@
-package project.preprocessing;
+package project.preprocessing.main;
 
 import java.io.*;
 import java.util.*;
@@ -14,7 +14,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import project.Athlete;
+import project.utils.Athlete;
 
 
 
@@ -47,7 +47,7 @@ public class Preprocessing {
                     region = mNOC.get(true_noc);
                 }
                 athlete.setTeam(new Text(region));
-                context.write(key, athlete.toText());
+                context.write(athlete.getId(), athlete.toText());
 
             } catch (CsvValidationException e) {
                 e.printStackTrace();

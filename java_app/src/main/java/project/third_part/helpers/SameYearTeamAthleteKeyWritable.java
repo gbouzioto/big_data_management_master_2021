@@ -1,9 +1,9 @@
-package project.third_part;
+package project.third_part.helpers;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.apache.hadoop.io.*;
-import project.Athlete;
+import project.utils.Athlete;
 
 import java.io.DataInput;
 import java.io.DataOutput;

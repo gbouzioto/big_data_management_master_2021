@@ -1,4 +1,4 @@
-package project.second_part;
+package project.second_part.main;
 
 import java.io.IOException;
 import java.util.*;
@@ -14,9 +14,10 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import project.Athlete;
+import project.utils.Athlete;
+import project.second_part.helpers.*;
 
-import static project.Constants.*;
+import static project.utils.Constants.*;
 
 @Builder
 @Data

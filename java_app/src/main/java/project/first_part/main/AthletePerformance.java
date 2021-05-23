@@ -1,4 +1,4 @@
-package project.first_part;
+package project.first_part.main;
 
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
@@ -10,10 +10,11 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import project.Athlete;
+import project.utils.Athlete;
+import project.first_part.helpers.AthletePerformanceKeyWritable;
 
-import static project.Constants.GOLD;
-import static project.Constants.ONE;
+import static project.utils.Constants.GOLD;
+import static project.utils.Constants.ONE;
 
 
 public class AthletePerformance {
