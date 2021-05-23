@@ -175,6 +175,8 @@ public class WomanAthleteParticipation {
         job2.setCombinerClass(TopYearTeamReducer.class);
         job2.setReducerClass(TopYearTeamReducer.class);
 
+        job2.setNumReduceTasks(1);
+
         job2.setMapOutputKeyClass(Text.class);
         job2.setMapOutputValueClass(TeamValueWritable.class);
 

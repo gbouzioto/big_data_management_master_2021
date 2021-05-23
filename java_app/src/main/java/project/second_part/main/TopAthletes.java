@@ -119,6 +119,8 @@ public class TopAthletes {
         job.setMapperClass(MedalMapper.class);
         job.setReducerClass(MedalReducer.class);
 
+        job.setNumReduceTasks(1);
+
         job.setMapOutputKeyClass(TopAthleteKeyWritable.class);
         job.setMapOutputValueClass(Text.class);
 
