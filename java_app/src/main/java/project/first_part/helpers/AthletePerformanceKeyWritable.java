@@ -58,6 +58,6 @@ public class AthletePerformanceKeyWritable implements WritableComparable<Athlete
 
     @Override
     public String toString() {
-        return String.format("%s %s %s", this.id, this.name, this.sex);
+        return String.format("%s\t%s\t%s", this.id, this.name, this.sex);
     }
 }

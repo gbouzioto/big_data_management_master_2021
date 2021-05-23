@@ -11,11 +11,11 @@ import java.io.IOException;
 
 @Data
 @Accessors(chain = true)
-public class SameYearTeamAthleteKeyWritable implements WritableComparable<SameYearTeamAthleteKeyWritable> {
+public class YearTeamNocAthleteKeyWritable implements WritableComparable<YearTeamNocAthleteKeyWritable> {
     protected Text name, team, sport, games, noc;
     protected LongWritable id;
     //default constructor for (de)serialization
-    public SameYearTeamAthleteKeyWritable() {
+    public YearTeamNocAthleteKeyWritable() {
         this.id = new LongWritable();
         this.name = new Text();
         this.team = new Text();
@@ -23,7 +23,7 @@ public class SameYearTeamAthleteKeyWritable implements WritableComparable<SameYe
         this.games = new Text();
         this.noc = new Text();
     }
-    public SameYearTeamAthleteKeyWritable(Athlete athlete) {
+    public YearTeamNocAthleteKeyWritable(Athlete athlete) {
         this.id = athlete.getId();
         this.name = athlete.getName();
         this.team = athlete.getTeam();
@@ -51,10 +51,13 @@ public class SameYearTeamAthleteKeyWritable implements WritableComparable<SameYe
         this.noc.readFields(dataInput);
     }
 
-    public int compareTo(SameYearTeamAthleteKeyWritable o) {
+    public int compareTo(YearTeamNocAthleteKeyWritable o) {
         int result = this.games.compareTo(o.games);
         if (result == 0) {
             result = this.team.compareTo(o.team);
+        }
+        if (result == 0) {
+            result = this.noc.compareTo(o.noc);
         }
         return result;
     }
@@ -63,19 +66,20 @@ public class SameYearTeamAthleteKeyWritable implements WritableComparable<SameYe
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SameYearTeamAthleteKeyWritable that = (SameYearTeamAthleteKeyWritable) o;
-        return that.games.equals(this.games) && that.team.equals(this.team);
+        YearTeamNocAthleteKeyWritable that = (YearTeamNocAthleteKeyWritable) o;
+        return that.games.equals(this.games) && that.team.equals(this.team) && that.noc.equals(this.noc);
     }
 
     @Override
     public int hashCode() {
         int result = ((this.team == null) ? 0 : this.team.hashCode());
         result += ((this.games == null) ? 0 : this.games.hashCode());
+        result += ((this.noc == null) ? 0 : this.noc.hashCode());
         return result;
     }
 
     @Override
     public String toString() {
-        return String.format("%s %s %s %s", this.name, this.team, this.sport, this.games);
+        return String.format("%s\t%s\t%s\t%s", this.name, this.team, this.sport, this.games);
     }
 }

@@ -96,6 +96,7 @@ public class Preprocessing {
 
 
     public static void main(String[] args) throws Exception {
+        long start = System.currentTimeMillis();
         setNOCMapping(args[0]);
 
         Configuration conf = new Configuration();
@@ -119,6 +120,14 @@ public class Preprocessing {
 
         FileInputFormat.addInputPath(job, new Path(args[1]));
         FileOutputFormat.setOutputPath(job, new Path(args[2]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+
+        if (!job.waitForCompletion(true)) {
+            System.exit(1);
+        }
+        // finding the time after the operation is executed
+        long end = System.currentTimeMillis();
+        //finding the time difference and converting it into seconds
+        float sec = (end - start) / 1000F;
+        System.out.println("Time execution in seconds:" + sec);
     }
 }

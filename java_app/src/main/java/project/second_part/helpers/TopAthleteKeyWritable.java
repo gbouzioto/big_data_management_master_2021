@@ -126,7 +126,7 @@ public class TopAthleteKeyWritable implements WritableComparable<TopAthleteKeyWr
 
     @Override
     public String toString() {
-        return String.format("%s %s %s %s %s %s %s %s %s %s",
+        return String.format("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s",
                 this.name, this.sex, this.age, this.team, this.sport,
                 this.games, this.gold, this.silver, this.bronze, this.totalMedals);
     }

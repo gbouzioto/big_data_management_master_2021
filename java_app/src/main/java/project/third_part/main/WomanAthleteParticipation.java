@@ -15,7 +15,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import project.utils.Athlete;
-import project.third_part.helpers.SameYearTeamAthleteKeyWritable;
+import project.third_part.helpers.YearTeamNocAthleteKeyWritable;
 import project.third_part.helpers.TeamValue;
 import project.third_part.helpers.TeamValueWritable;
 import project.third_part.helpers.WomanTeamComparator;
@@ -27,7 +27,7 @@ import static project.utils.Constants.*;
 public class WomanAthleteParticipation {
 
     public static class YearTeamMapper
-            extends Mapper<LongWritable, Text, SameYearTeamAthleteKeyWritable, SameYearTeamAthleteKeyWritable> {
+            extends Mapper<LongWritable, Text, YearTeamNocAthleteKeyWritable, YearTeamNocAthleteKeyWritable> {
 
         public void map(LongWritable key, Text value, Context context
         ) throws IOException, InterruptedException {
@@ -36,16 +36,16 @@ public class WomanAthleteParticipation {
 
             Athlete athlete = new Athlete(splitText);
             if (athlete.getSex().compareTo(FEMALE) == 0) {
-                SameYearTeamAthleteKeyWritable womanAthlete = new SameYearTeamAthleteKeyWritable(athlete);
+                YearTeamNocAthleteKeyWritable womanAthlete = new YearTeamNocAthleteKeyWritable(athlete);
                 context.write(womanAthlete, womanAthlete);
             }
         }
     }
 
     public static class YearTeamReducer
-            extends Reducer<SameYearTeamAthleteKeyWritable, SameYearTeamAthleteKeyWritable, Text, TeamValueWritable> {
+            extends Reducer<YearTeamNocAthleteKeyWritable, YearTeamNocAthleteKeyWritable, Text, TeamValueWritable> {
 
-        public void reduce(SameYearTeamAthleteKeyWritable key, Iterable<SameYearTeamAthleteKeyWritable> values, Context context
+        public void reduce(YearTeamNocAthleteKeyWritable key, Iterable<YearTeamNocAthleteKeyWritable> values, Context context
         ) throws IOException, InterruptedException {
             HashSet<Long> ids = new HashSet<>();
             HashMap<String, Integer> sportCountMap= new HashMap<>();
@@ -59,7 +59,7 @@ public class WomanAthleteParticipation {
             String sport;
             long id;
 
-            for (SameYearTeamAthleteKeyWritable value : values) {
+            for (YearTeamNocAthleteKeyWritable value : values) {
                 id = value.getId().get();
                 if (ids.contains(id)) {
                     continue;
@@ -142,6 +142,7 @@ public class WomanAthleteParticipation {
 
 
     public static void main(String[] args) throws Exception {
+        long start = System.currentTimeMillis();
         Configuration conf = new Configuration();
         Path out = new Path(args[1]);
 
@@ -151,8 +152,8 @@ public class WomanAthleteParticipation {
         job1.setMapperClass(YearTeamMapper.class);
         job1.setReducerClass(YearTeamReducer.class);
 
-        job1.setMapOutputKeyClass(SameYearTeamAthleteKeyWritable.class);
-        job1.setMapOutputValueClass(SameYearTeamAthleteKeyWritable.class);
+        job1.setMapOutputKeyClass(YearTeamNocAthleteKeyWritable.class);
+        job1.setMapOutputValueClass(YearTeamNocAthleteKeyWritable.class);
 
         job1.setOutputKeyClass(Text.class);
         job1.setOutputValueClass(TeamValueWritable.class);
@@ -182,8 +183,14 @@ public class WomanAthleteParticipation {
 
         FileInputFormat.addInputPath(job2, new Path(out, "out1"));
         FileOutputFormat.setOutputPath(job2, new Path(out, "out2"));
+
         if (!job2.waitForCompletion(true)) {
             System.exit(1);
         }
+        // finding the time after the operation is executed
+        long end = System.currentTimeMillis();
+        //finding the time difference and converting it into seconds
+        float sec = (end - start) / 1000F;
+        System.out.println("Time execution in seconds:" + sec);
     }
 }

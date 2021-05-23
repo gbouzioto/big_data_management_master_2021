@@ -58,23 +58,37 @@ public class AthletePerformance {
 
 
     public static void main(String[] args) throws Exception {
+        long start = System.currentTimeMillis();
+
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "athlete performance");
         job.setJarByClass(AthletePerformance.class);
+
         job.setMapperClass(GoldMedalMapper.class);
         job.setCombinerClass(GoldMedalReducer.class);
         job.setReducerClass(GoldMedalReducer.class);
+
         job.setMapOutputKeyClass(AthletePerformanceKeyWritable.class);
         job.setMapOutputValueClass(IntWritable.class);
+
         job.setOutputKeyClass(AthletePerformanceKeyWritable.class);
         job.setOutputValueClass(IntWritable.class);
         job.setSortComparatorClass(AthletePerformanceComparator.class);
+
         FileSystem fs = FileSystem.get(conf);
         if(fs.exists(new Path(args[1]))) {
             fs.delete(new Path(args[1]),true);
         }
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
-        System.exit(job.waitForCompletion(true) ? 0 : 1);
+
+        if (!job.waitForCompletion(true)) {
+            System.exit(1);
+        }
+        // finding the time after the operation is executed
+        long end = System.currentTimeMillis();
+        //finding the time difference and converting it into seconds
+        float sec = (end - start) / 1000F;
+        System.out.println("Time execution in seconds:" + sec);
     }
 }
