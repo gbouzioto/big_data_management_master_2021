@@ -74,15 +74,24 @@ public class WomanAthleteParticipation {
 
             }
             teamValueWritable.setWomanAthletesCount(new IntWritable(ids.size()));
-            String favoriteSport = "";
-            int max_count = 0;
+            // find most favorite sport by count
+            // use chaining for collisions
+            TreeMap<Integer, List<String>> tMap = new TreeMap<>();
+            List<String> favoriteSport;
             for (Map.Entry<String, Integer> entry : sportCountMap.entrySet()) {
-                if (entry.getValue() > max_count) {
-                    favoriteSport = entry.getKey();
-                    max_count = entry.getValue();
+                if (tMap.containsKey(entry.getValue())) {
+                    favoriteSport = tMap.get(entry.getValue());
+                } else {
+                    favoriteSport = new ArrayList<>();
+                    tMap.put(entry.getValue(), favoriteSport);
                 }
+                favoriteSport.add(entry.getKey());
             }
-            teamValueWritable.setSport(new Text(favoriteSport));
+            List<String> lastKey = tMap.get(tMap.lastKey());
+            if (lastKey.size() > 1) {
+                lastKey.sort(Comparator.naturalOrder());
+            }
+            teamValueWritable.setSport(new Text(String.join(" ", lastKey)));
             context.write(teamValueWritable.getGames(), teamValueWritable);
         }
 
@@ -115,9 +124,9 @@ public class WomanAthleteParticipation {
                     teamValueList = tMap.get(count);
                 } else {
                     teamValueList = new ArrayList<>();
+                    tMap.put(count, teamValueList);
                 }
                 teamValueList.add(teamValue);
-                tMap.put(count, teamValueList);
 
                 if (tMap.size() > MAX_TOP_TEAMS)
                 {

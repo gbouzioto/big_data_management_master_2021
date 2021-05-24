@@ -79,9 +79,9 @@ public class TopAthletes {
                 topAthleteList = this.tMap.get(athleteKey);
             } else {
                 topAthleteList = new ArrayList<>();
+                tMap.put(athleteKey, topAthleteList);
             }
             topAthleteList.add(topAthlete);
-            tMap.put(athleteKey, topAthleteList);
 
             if (this.tMap.size() > MAX_TOP_ATHLETES)
             {
