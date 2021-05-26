@@ -100,7 +100,7 @@ public class Preprocessing {
         setNOCMapping(args[0]);
 
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "athlete performance");
+        Job job = Job.getInstance(conf, "preprocessing");
         job.setJarByClass(Preprocessing.class);
 
         job.setMapperClass(PreprocessingMapper.class);
