@@ -12,6 +12,14 @@ import java.io.IOException;
 
 import static java.lang.Integer.parseInt;
 
+/*
+Hadoop like Athlete object, since Hadoop needs special objects that can be used for its Mapper and Reducer classes.
+It inherits from the WritableComparable object and implements its basic methods.
+
+As its name suggests, this class is used for the third part of the project, hence it contains the attributes:
+games, team, noc, sport and womanAthletesCount for a team. This class represents teams that have participated in the
+same olympics
+ */
 @Data
 @Accessors(chain = true)
 public class TeamValueWritable implements WritableComparable<TeamValueWritable>  {
@@ -54,11 +62,7 @@ public class TeamValueWritable implements WritableComparable<TeamValueWritable> 
     }
 
     public int compareTo(TeamValueWritable o) {
-        int result = this.games.compareTo(o.games);
-        if (result == 0) {
-            result = this.team.compareTo(o.team);
-        }
-        return result;
+        return this.games.compareTo(o.games);
     }
 
     @Override
@@ -66,16 +70,15 @@ public class TeamValueWritable implements WritableComparable<TeamValueWritable> 
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TeamValueWritable that = (TeamValueWritable) o;
-        return that.games.equals(this.games) && that.team.equals(this.team);
+        return that.games.equals(this.games);
     }
 
     @Override
     public int hashCode() {
-        int result = ((this.team == null) ? 0 : this.team.hashCode());
-        result += ((this.games == null) ? 0 : this.games.hashCode());
-        return result;
+        return (this.games == null) ? 0 : this.games.hashCode();
     }
 
+    // Hadoop will use this method (if available) as a data output in files.
     @Override
     public String toString() {
         return String.format("%s\t%s\t%s\t%s", this.team, this.noc, this.womanAthletesCount, this.sport);

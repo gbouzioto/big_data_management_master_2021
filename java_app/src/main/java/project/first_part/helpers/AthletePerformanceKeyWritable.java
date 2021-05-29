@@ -10,6 +10,17 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Objects;
 
+/*
+Hadoop like Athlete object, since Hadoop needs special objects that can be used for its Mapper and Reducer classes.
+It inherits from the WritableComparable object and implements its basic methods.
+
+As its name suggests, this class is used for the first part of the project, hence it contains 3 attributes,
+the id, name and sex of the Athlete.
+
+It also acts as a key for Mapper and Reducer classes, by using the athlete's id as part of the key.
+This is achieved by compareTo (which compares Key of the mapper and reducer in hadoop), equals (key equality)
+hashCode (used for deciding the partition of the object) methods.
+ */
 @Data
 @Accessors(chain = true)
 public class AthletePerformanceKeyWritable implements WritableComparable<AthletePerformanceKeyWritable> {
@@ -50,12 +61,10 @@ public class AthletePerformanceKeyWritable implements WritableComparable<Athlete
     }
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((this.id == null) ? 0 : this.id.hashCode());
-        return result;
+        return (this.id == null) ? 0 : this.id.hashCode();
     }
 
+    // Hadoop will use this method (if available) as a data output in files.
     @Override
     public String toString() {
         return String.format("%s\t%s\t%s", this.id, this.name, this.sex);

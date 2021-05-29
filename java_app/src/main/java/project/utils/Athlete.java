@@ -7,6 +7,7 @@ import org.apache.hadoop.io.Text;
 
 import static java.lang.Integer.parseInt;
 
+// Class used for converting each row of the csv to an Athlete
 @Data
 @Accessors(chain = true)
 public class Athlete {
@@ -28,6 +29,7 @@ public class Athlete {
     private Text medal;
 
     public Athlete(String[] line) {
+        // Takes a line from creates an Athlete instance
         this.id = new LongWritable(parseInt(line[Constants.ID]));
         this.name = new Text(line[Constants.NAME]);
         this.sex = new Text(line[Constants.SEX]);

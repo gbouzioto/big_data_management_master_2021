@@ -1,3 +1,4 @@
+// Package imports
 package project.preprocessing.main;
 
 import com.opencsv.CSVReader;
@@ -32,11 +33,13 @@ public class ExploratoryAnalyser {
                     return;
                 }
                 String line = value.toString();
-
+                // parse each line
                 try (CSVReader csvReader = new CSVReader(new StringReader(line))) {
                     String[] parsedLine = csvReader.readNext();
+                    // parse each column
                     for (int i = 0; i < parsedLine.length; i++) {
                         if (parsedLine[i].equals("NA")) {
+                            // emit the index of the column that has null value and 1 as value
                             context.write(new IntWritable(i), ONE);
                         }
                     }
@@ -53,10 +56,12 @@ public class ExploratoryAnalyser {
             public void reduce(IntWritable key, Iterable<IntWritable> values,
                                Context context
             ) throws IOException, InterruptedException {
+                // calculate the sum of the missing values per index
                 int sum = 0;
                 for (IntWritable value : values) {
                     sum += value.get();
                 }
+                // emit the index and the missing values count
                 context.write(key, new IntWritable(sum));
                 }
             }
@@ -66,19 +71,23 @@ public class ExploratoryAnalyser {
 
         public static void main(String[] args) throws Exception {
             long start = System.currentTimeMillis();
+            // configurations for the Map Reduce Job
             Configuration conf = new Configuration();
             Job job = Job.getInstance(conf, "exploratory analysis");
             job.setJarByClass(project.preprocessing.main.Preprocessing.class);
 
+            // Set Mapper, Combiner, Reducer classes
             job.setMapperClass(ExploratoryAnalyserMapper.class);
             job.setCombinerClass(ExploratoryAnalyserReducer.class);
             job.setReducerClass(ExploratoryAnalyserReducer.class);
 
+            // Set Output Key Value Classes
             job.setMapOutputKeyClass(IntWritable.class);
             job.setMapOutputValueClass(IntWritable.class);
-
             job.setOutputKeyClass(IntWritable.class);
             job.setOutputValueClass(IntWritable.class);
+
+            // set the input and output files
             FileSystem fs = FileSystem.get(conf);
 
             if(fs.exists(new Path(args[1]))) {
@@ -93,7 +102,7 @@ public class ExploratoryAnalyser {
             }
             // finding the time after the operation is executed
             long end = System.currentTimeMillis();
-            //finding the time difference and converting it into seconds
+            // finding the time difference and converting it into seconds
             float sec = (end - start) / 1000F;
             System.out.println("Time execution in seconds:" + sec);
         }

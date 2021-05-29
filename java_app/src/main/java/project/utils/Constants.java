@@ -3,6 +3,7 @@ package project.utils;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
+// Project constant values
 public final class Constants {
 
     private Constants() {
